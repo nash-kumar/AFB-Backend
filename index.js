@@ -2,6 +2,7 @@ var express= require('express');
 var app=express();
 
 var UserSchema=require('./models/model');
+var UserRouter=require('./routes/route');
 
 const mongoose=require("mongoose");
 require('dotenv').config()
@@ -15,7 +16,5 @@ else
 console.log("success");
 });
 
-app.get('/', (req,res) => {
-    res.send("WELCOME TO NODE");
-});
+app.use('/users', UserRouter);
 app.listen(8080);
