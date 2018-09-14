@@ -3,15 +3,18 @@ const router = express.Router();
 const userModel = require('../model/model').userModel;
 module.exports = router;
 
-router.post('/add', (req, res) => {
+router.post('/register', (req, res) => {
     console.log('POST IS WORKING!');
     if (req.body.data) {
         const user = userModel({
-            name: req.body.data.name,
-            designation: req.body.data.designation,
-            place: req.body.data.place,
-            salary: req.body.data.salary,
-            phoneno: req.body.data.phoneno
+            firstname: req.body.data.firstname,
+            surname: req.body.data.surname,
+            mobile: req.body.data.mobile,
+            email: req.body.data.email,
+            dob: req.body.data.dob,
+            password: req.body.data.password,
+            emp_id: req.body.data.emp_id,
+            gender: req.body.data.gender
         });
         user.save((err, result) => {
             if (err) {
@@ -29,6 +32,22 @@ router.post('/add', (req, res) => {
         });
     }
 });
+
+router.post('/login', (req, res) => {
+       
+        var email = req.body.data.email;
+        var password = req.body.data.password;
+   
+    userModel.findOne({email: email, password: password}, (err, user) => {
+        if(err){
+            return res.status(500).send();
+        }
+        if(!user){
+            return res.status(404).send({message:"User or Password Did not match!"})
+        }else
+        return res.status(200).send({message:"Successfuly logged In"})
+    })
+})
 
 router.get('/:id', (req, res) => {
     console.log('GET IS WORKING!');
@@ -69,3 +88,19 @@ router.patch('/:id', (req, res) => {
         }
     })
 });
+
+router.delete('/:emp_id', (req, res) => {
+    userModel.findByIdAndRemove({emp_id: req.params.emp_id}, (err, result)=>{
+        if (err){
+            res.status(500).send({
+                success: false,
+                message: "Unable to Delete!"
+            })
+        }else{
+            res.status(200).send({
+                success:true,
+                message: "Success!"
+            })
+        }
+    })
+})
