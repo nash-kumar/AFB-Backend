@@ -49,30 +49,30 @@ router.post('/login', (req, res) => {
     })
 })
 
-router.get('/:id', (req, res) => {
-    console.log('GET IS WORKING!');
-    userModel.findOne({ id: req.params.id }, (err, result) => {
-        if (err || result === null) {
-            res.status(404).send({ success: false, message: 'User not found' })
-        } else {
-            res.status(200).send({ success: true, message: 'Success!', result })
-        }
-    });
-});
+// router.get('/:id', (req, res) => {
+//     console.log('GET IS WORKING!');
+//     userModel.findOne({ id: req.params.id }, (err, result) => {
+//         if (err || result === null) {
+//             res.status(404).send({ success: false, message: 'User not found' })
+//         } else {
+//             res.status(200).send({ success: true, message: 'Success!', result })
+//         }
+//     });
+// });
 
-router.get('/', (req, res) => {
-    console.log('GET IS WORKING!');
-    userModel.find((err, result) => {
-        if (err) {
-            res.status(404).send({ success: false, message: 'Users Not Found' });
-        } else {
-            res.status(200).send({ success: true, message: 'Success!', result });
-        }
-    });
-});
+// router.get('/', (req, res) => {
+//     console.log('GET IS WORKING!');
+//     userModel.find((err, result) => {
+//         if (err) {
+//             res.status(404).send({ success: false, message: 'Users Not Found' });
+//         } else {
+//             res.status(200).send({ success: true, message: 'Success!', result });
+//         }
+//     });
+// });
 
 router.get('/list', function (req, res, next) {
-    let query = UserSchema.find({});
+    let query = userModel.find({});
     query.exec((err, user) => {
         if (err) {
             res.send(err);
