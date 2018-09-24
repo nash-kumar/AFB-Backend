@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt=require('bcrypt');
+const jwt=require('jsonwebtoken');
 const userModel = require('../model/model').userModel;
 module.exports = router;
 
@@ -34,51 +36,51 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-       
-        var email = req.body.data.email;
-        var password = req.body.data.password;
-   
-    userModel.findOne({email: email, password: password}, (err, user) => {
-        if(err){
-            return res.status(500).send();
-        }
-        if(!user){
-            return res.status(404).send({ success:false , message:"User or Password Did not match!"})
-        }else
-        return res.status(200).send({ success:true , message:"Successfuly logged In"})
-    })
-})
+        userModel.findOne({ email:req.body.data.user.email}, function(err, userInfo){
+            if (err) {
+             next(err);
+            } else {
+               if(bcrypt.compareSync(req.body.data.user.password, userInfo.password)) {
+                   const token = jwt.sign({id: userInfo._id}, req.app.get('secretKey'), { expiresIn: '1h' });
+                   res.json({status:"success", message: "user found!!!", data:{user: userInfo, token:token}});
+                   }else{
+                   res.json({status:"error", message: "Invalid email/password!!!"});
+                   }
+                        }
+                       });
+                    });
 
-router.get('/:id', (req, res) => {
-    console.log('GET IS WORKING!');
-    userModel.findOne({ id: req.params.id }, (err, result) => {
-        if (err || result === null) {
-            res.status(404).send({ success: false, message: 'User not found' })
-        } else {
-            res.status(200).send({ success: true, message: 'Success!', result })
-        }
-    });
-});
 
-router.get('/', (req, res) => {
-    console.log('GET IS WORKING!');
-    userModel.find((err, result) => {
-        if (err) {
-            res.status(404).send({ success: false, message: 'Users Not Found' });
-        } else {
-            res.status(200).send({ success: true, message: 'Success!', result });
-        }
-    });
-});
+// router.get('/:id', (req, res) => {
+//     console.log('GET IS WORKING!');
+//     userModel.findOne({ id: req.params.id }, (err, result) => {
+//         if (err || result === null) {
+//             res.status(404).send({ success: false, message: 'User not found' })
+//         } else {
+//             res.status(200).send({ success: true, message: 'Success!', result })
+//         }
+//     });
+// });
+
+// router.get('/', (req, res) => {
+//     console.log('GET IS WORKING!');
+//     userModel.find((err, result) => {
+//         if (err) {
+//             res.status(404).send({ success: false, message: 'Users Not Found' });
+//         } else {
+//             res.status(200).send({ success: true, message: 'Success!', result });
+//         }
+//     });
+// });
 
 router.get('/list', function (req, res, next) {
-    let query = UserSchema.find({});
-    query.exec((err, user) => {
+    let query = userModel.find({});
+    query.exec((err, users) => {
         if (err) {
             res.send(err);
 
         } else {
-            res.json({ user });
+            res.json({ users });
         }
     })
 });
