@@ -49,8 +49,6 @@ router.post('/login', (req, res) => {
                         }
                        });
                     });
-
-
 // router.get('/:id', (req, res) => {
 //     console.log('GET IS WORKING!');
 //     userModel.findOne({ id: req.params.id }, (err, result) => {
@@ -75,7 +73,7 @@ router.post('/login', (req, res) => {
 
 router.get('/list', function (req, res, next) {
     let query = userModel.find({});
-    query.exec((err, users) => {
+    query.exec((err, user) => {
         if (err) {
             res.send(err);
 
