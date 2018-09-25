@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt=require('bcrypt');
-const jwt=require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const userModel = require('../model/model').userModel;
 module.exports = router;
 
@@ -36,19 +36,28 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-        userModel.findOne({ email:req.body.data.user.email}, function(err, userInfo){
-            if (err) {
-             next(err);
+       const email= req.body.data.email;
+       var password = req.body.password;
+
+    userModel.findOne({ email: req.body.data.user.email }, function (err, userInfo) {
+        
+        if (err) {
+            next(err);
+        } if(userInfo) {
+            if (bcrypt.compareSync(req.body.data.user.password, userInfo.password)) {
+                const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: '1h' });
+                res.json({ success: true, message: "user found!!!", data: { user: userInfo, token: token } });
             } else {
-               if(bcrypt.compareSync(req.body.data.user.password, userInfo.password)) {
-                   const token = jwt.sign({id: userInfo._id}, req.app.get('secretKey'), { expiresIn: '1h' });
-                   res.json({status:"success", message: "user found!!!", data:{user: userInfo, token:token}});
-                   }else{
-                   res.json({status:"error", message: "Invalid email/password!!!"});
-                   }
-                        }
-                       });
-                    });
+                res.json({ success: false, message: "Invalid email/password!!!" });
+            }
+        }
+        if(!userInfo){
+            res.json({ success: false, message: "Invalid email/password!!!" });
+        }
+
+
+    });
+});
 // router.get('/:id', (req, res) => {
 //     console.log('GET IS WORKING!');
 //     userModel.findOne({ id: req.params.id }, (err, result) => {
@@ -78,7 +87,7 @@ router.get('/list', function (req, res, next) {
             res.send(err);
 
         } else {
-            res.json({ users });
+            res.json({ user });
         }
     })
 });
@@ -124,15 +133,15 @@ router.patch('/:id', (req, res) => {
 });
 
 router.delete('/:emp_id', (req, res) => {
-    userModel.findByIdAndRemove({emp_id: req.params.emp_id}, (err, result)=>{
-        if (err){
+    userModel.findByIdAndRemove({ emp_id: req.params.emp_id }, (err, result) => {
+        if (err) {
             res.status(500).send({
                 success: false,
                 message: "Unable to Delete!"
             })
-        }else{
+        } else {
             res.status(200).send({
-                success:true,
+                success: true,
                 message: "Success!"
             })
         }
