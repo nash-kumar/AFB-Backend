@@ -6,19 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nash-kumar/backend.git"
-  },
-  "author": "vinaykashyap",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nash-kumar/backend/issues"
-  },
-  "homepage": "https://github.com/nash-kumar/backend#readme",
   "dependencies": {
+    "bcrypt": "^3.0.1",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
-    "mongoose": "^5.2.14"
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.2.13",
+    "mongoose-sequence": "^4.0.1"
   }
 }
