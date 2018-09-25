@@ -36,6 +36,7 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+<<<<<<< HEAD
        const email= req.body.data.email;
        var password = req.body.password;
 
@@ -56,6 +57,19 @@ router.post('/login', (req, res) => {
         }
 
 
+=======
+    userModel.findOne({ email: req.body.data.email }, function (err, userInfo) {
+        if (err) {
+            next(err);
+        } else {
+            if (bcrypt.compareSync(req.body.data.password, userInfo.password)) {
+                const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: '1h' });
+                res.json({ status: "success", success: true, message: "Authenticated", data: token, user: userInfo});
+            } else {
+                res.json({ status: "error",success: false, message: "Invalid email/password!!!" });
+            }
+        }
+>>>>>>> 279da37f49fa2a10443b2b72a3b691a8c2898801
     });
 });
 // router.get('/:id', (req, res) => {
