@@ -10,7 +10,9 @@ const UserSchema = mongoose.Schema({
     dob:String,
     password: String,
     emp_id: Number,
-    gender: String 
+    gender: String ,
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 });
 UserSchema.pre('save', function(next){
     this.password = bcrypt.hashSync(this.password, saltRounds);

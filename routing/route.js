@@ -3,6 +3,11 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userModel = require('../model/model').userModel;
+const async = require('async');
+const nodemailer = require('nodemailer');
+const crypto=require('crypto');
+const xoauth2=require('xoauth2');
+
 module.exports = router;
 
 router.post('/register', (req, res) => {
@@ -36,14 +41,14 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-       const email= req.body.data.email;
-       var password = req.body.password;
+    const email = req.body.data.email;
+    var password = req.body.password;
 
     userModel.findOne({ email: req.body.data.user.email }, function (err, userInfo) {
-        
+
         if (err) {
             next(err);
-        } if(userInfo) {
+        } if (userInfo) {
             if (bcrypt.compareSync(req.body.data.user.password, userInfo.password)) {
                 const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: '1h' });
                 res.json({ success: true, message: "user found!!!", data: { user: userInfo, token: token } });
@@ -51,34 +56,71 @@ router.post('/login', (req, res) => {
                 res.json({ success: false, message: "Invalid email/password!!!" });
             }
         }
-        if(!userInfo){
+        if (!userInfo) {
             res.json({ success: false, message: "Invalid email/password!!!" });
         }
 
 
     });
 });
-// router.get('/:id', (req, res) => {
-//     console.log('GET IS WORKING!');
-//     userModel.findOne({ id: req.params.id }, (err, result) => {
-//         if (err || result === null) {
-//             res.status(404).send({ success: false, message: 'User not found' })
-//         } else {
-//             res.status(200).send({ success: true, message: 'Success!', result })
-//         }
-//     });
-// });
+router.post('/forgot', function (req, res, next) {
+    async.waterfall([
+        function (done) {
+            crypto.randomBytes(20, function (err, buf) {
+                var token = buf.toString('hex');
+                done(err, token);
+            });
+        },
+        function (token, done) {
+            userModel.findOne({ email: req.body.data.user.email }, function (err, user) {
+                if (!user) {
+                    // req.flash('error', 'No account with that email address exists.');
+                    // return res.redirect('/forgot');
+                    res.json({ success: false, message: "No account with that email address exists." });
+                }
 
-// router.get('/', (req, res) => {
-//     console.log('GET IS WORKING!');
-//     userModel.find((err, result) => {
-//         if (err) {
-//             res.status(404).send({ success: false, message: 'Users Not Found' });
-//         } else {
-//             res.status(200).send({ success: true, message: 'Success!', result });
-//         }
-//     });
-// });
+                user.resetPasswordToken = token;
+                user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+                user.save(function (err) {
+                    done(err, token, user);
+                });
+            });
+        },
+        function (token, user, done) {
+            var smtpTransport = nodemailer.createTransport({
+                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 465,
+                auth: {
+                        user: 'vinay.kashyap234@gmail.com',
+                        pass: '9538579663avanakms'
+                }
+            });
+            var mailOptions = {
+                to: req.body.data.user.email,
+                from: 'vinay.kashyap234@gmail.com',
+                subject: 'Node.js Password Reset',
+                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                    'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                    'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                    'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+            };
+            smtpTransport.sendMail(mailOptions, function (err,res) {
+               if(err){
+                   console.log('Error',err);
+               } else{
+                   console.log('Email Sent');
+               }
+            });
+        }
+    ], function (err) {
+        if (err) return next(err);
+        res.redirect('/forgot');
+    });
+});
+
+
 
 router.get('/list', function (req, res, next) {
     let query = userModel.find({});
