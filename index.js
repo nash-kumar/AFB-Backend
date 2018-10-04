@@ -10,7 +10,8 @@ const jwt = require('jsonwebtoken');
 app.set('secretKey', 'nodeRestApi');
 app.use(cors());
 
-mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }, (err) => {
+ mongoose.connect(process.env.DB_URL, { useNewUrlParser: true }, (err) => {
+  console.log('hi');
   if (err) console.log('Could not Connect');
   else console.log("SuccessFully Connected");
 });
