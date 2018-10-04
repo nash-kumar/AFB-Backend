@@ -78,7 +78,7 @@ router.post('/forgot', function (req, res, next) {
                     // return res.redirect('/forgot');
                     res.json({ success: false, message: "No account with that email address exists." });
                 }
-       
+
                 user.resetPasswordToken = token;
                 user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
@@ -88,6 +88,7 @@ router.post('/forgot', function (req, res, next) {
             });
         },
         function (token, user, done) {
+            res.json({success: true});
             var smtpTransport = nodemailer.createTransport({
                 service: 'gmail',
                 host: 'smtp.gmail.com',
@@ -185,6 +186,7 @@ router.get('/reset/:token', function(req, res) {
           }
   
           user.password = req.body.data.user.password;
+         
         //   user.resetPasswordToken = undefined;
         //   user.resetPasswordExpires = undefined;
 
