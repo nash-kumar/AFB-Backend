@@ -6,7 +6,7 @@ const userModel = require('../model/model').userModel;
 const async = require('async');
 const nodemailer = require('nodemailer');
 const crypto=require('crypto');
-const xoauth2=require('xoauth2');
+
 
 module.exports = router;
 
@@ -141,7 +141,7 @@ router.get('/reset/:token', function(req, res) {
           }
   
           user.password = req.body.data.user.password;
-        //   user.resetPasswordToken = undefined;
+           user.resetPasswordToken = undefined;
         //   user.resetPasswordExpires = undefined;
 
           user.save(function (err) {
