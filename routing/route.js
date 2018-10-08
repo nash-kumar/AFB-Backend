@@ -6,7 +6,7 @@ const userModel = require('../model/model').userModel;
 const async = require('async');
 const nodemailer = require('nodemailer');
 const crypto=require('crypto');
-const xoauth2=require('xoauth2');
+
 
 module.exports = router;
 
@@ -104,7 +104,7 @@ router.post('/forgot', function (req, res, next) {
                 subject: 'Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                    'http://' + 'localhost:4200/forgot' + '/reset/' + token + '\n\n' +
+                    'http://' + 'localhost:4200/user' + '/reset/' + token + '\n\n' +
                     'If you did not request this, please ignore this email and your password will remain unchanged.\n'
             };
             smtpTransport.sendMail(mailOptions, function (err,res) {
@@ -126,28 +126,33 @@ router.get('/reset/:token', function(req, res) {
       if (!user) {
         res.json({ success: false, message: "Password reset token is invalid or has expired"});
         }
+      res.render('reset', {
+          user: req.user
+      })      
       });
     });
-  ;
+  
 
   router.post('/reset/:token', function(req, res) {
     async.waterfall([
       function(done) {
         userModel.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
           if (!user) {
-            res.json({success:false, message:'Password reset token is invalid or has expired.'});
-            return res.redirect('back');
+              debugger;
+             res.json({success:false, message:'Password reset token is invalid or has expired.'});
+          } else {
+            user.password = req.body.data.user.password;
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            
+            user.save(function (err) {
+                done(err,user);    
+          });
+            res.json({success: true, message:'Your password has been updated.'});
           }
   
-          user.password = req.body.data.user.password;
-         
-          user.resetPasswordToken = undefined;
-          user.resetPasswordExpires = undefined;
-
-          user.save(function (err) {
-            done(err,user);
-        });
-         user=user.email;
+          
+         user = user.email;
           
         });
       },
