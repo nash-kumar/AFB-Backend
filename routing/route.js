@@ -77,7 +77,7 @@ router.post('/forgot', function (req, res, next) {
                    
                     res.json({ success: false, message: "No account with that email address exists." });
                 }
-       
+
                 user.resetPasswordToken = token;
                 user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
@@ -87,6 +87,7 @@ router.post('/forgot', function (req, res, next) {
             });
         },
         function (token, user, done) {
+            res.json({success: true});
             var smtpTransport = nodemailer.createTransport({
                 service: 'gmail',
                 host: 'smtp.gmail.com',
@@ -98,8 +99,8 @@ router.post('/forgot', function (req, res, next) {
             });
             var mailOptions = {
                 to: req.body.data.user.email,
-                from: 'vinay.kashyap234@gmail.com',
-                subject: 'Node.js Password Reset',
+                from: 'accionlabs136@gmail.com',
+                subject: 'Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
                     'http://' + 'localhost:4200/forgot' + '/reset/' + token + '\n\n' +
@@ -125,25 +126,28 @@ router.get('/reset/:token', function(req, res) {
         res.json({ success: false, message: "Password reset token is invalid or has expired"});
         }
     });
-  });
+});
+  
 
   router.post('/reset/:token', function(req, res) {
     async.waterfall([
       function(done) {
         userModel.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
           if (!user) {
-            res.json({success:false, message:'Password reset token is invalid or has expired.'});
-           
+              debugger;
+             res.json({success:false, message:'Password reset token is invalid or has expired.'});
+          } else {
+            user.password = req.body.data.user.password;
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            
+            user.save(function (err) {
+                done(err,user);    
+          });
+            res.json({success: true, message:'Your password has been updated.'});
           }
   
-          user.password = req.body.data.user.password;
-           user.resetPasswordToken = undefined;
-          user.resetPasswordExpires = undefined;
-
-          user.save(function (err) {
-            done(err,user);
-        });
-        
+          
          user = user.email;
           
         });
@@ -154,13 +158,13 @@ router.get('/reset/:token', function(req, res) {
             host: 'smtp.gmail.com',
             port: 465,
             auth:  {
-            user: 'vinay.kashyap234@gmail.com',
-            pass: '9538579663avanakms'
+            user: 'accionlabs136@gmail.com',
+            pass: 'accion136'
           }
         });
         var mailOptions = {
           to: user,
-          from: 'vinay.kashyap234@gmail.com',
+          from: 'accionlabs136@gmail.com',
           subject: 'Your password has been changed',
           text: 'Hello,\n\n' +
             'This is a confirmation that the password for your account ' + user + ' has just been changed.\n'

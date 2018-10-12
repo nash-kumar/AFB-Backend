@@ -4,7 +4,7 @@
   "description": "two crud operations",
   "main": "index.js",
   "scripts": {
-    "test": " ./node_modules/mocha/bin/mocha registerTest.js "
+    "test": " ./node_modules/mocha/bin/mocha LoginTest.js "
   },
   "keywords": [],
   "author": "",
@@ -12,10 +12,12 @@
   "dependencies": {
     "async": "^2.6.1",
     "bcrypt": "^3.0.1",
+    "brcrypt": "^1.0.7",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "express-flash": "0.0.2",
+    "g": "^2.0.1",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.13",
     "mongoose-sequence": "^4.0.1",
