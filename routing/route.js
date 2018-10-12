@@ -30,7 +30,7 @@ router.post('/register', (req, res) => {
                     message: err.message
                 });
             } else if (result) {
-                res.status(200).send({ success: true, message: "Data added successfully", result });
+                res.status(201).send({ success: true, message: "Data added successfully", result });
             }
         });
     } else {
@@ -74,8 +74,7 @@ router.post('/forgot', function (req, res, next) {
         function (token, done) {
             userModel.findOne({ email: req.body.data.user.email }, function (err, user) {
                 if (!user) {
-                    // req.flash('error', 'No account with that email address exists.');
-                    // return res.redirect('/forgot');
+                   
                     res.json({ success: false, message: "No account with that email address exists." });
                 }
        
@@ -103,7 +102,7 @@ router.post('/forgot', function (req, res, next) {
                 subject: 'Node.js Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                    'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+                    'http://' + 'localhost:4200/forgot' + '/reset/' + token + '\n\n' +
                     'If you did not request this, please ignore this email and your password will remain unchanged.\n'
             };
             smtpTransport.sendMail(mailOptions, function (err,res) {
@@ -125,9 +124,6 @@ router.get('/reset/:token', function(req, res) {
       if (!user) {
         res.json({ success: false, message: "Password reset token is invalid or has expired"});
         }
-      res.render('reset', {
-        user: req.user
-      });
     });
   });
 
@@ -137,17 +133,18 @@ router.get('/reset/:token', function(req, res) {
         userModel.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
           if (!user) {
             res.json({success:false, message:'Password reset token is invalid or has expired.'});
-            return res.redirect('back');
+           
           }
   
           user.password = req.body.data.user.password;
            user.resetPasswordToken = undefined;
-        //   user.resetPasswordExpires = undefined;
+          user.resetPasswordExpires = undefined;
 
           user.save(function (err) {
             done(err,user);
         });
-         user=user.email;
+        
+         user = user.email;
           
         });
       },
@@ -184,15 +181,17 @@ router.get('/list', function (req, res, next) {
     query.exec((err, user) => {
         if (err) {
             res.send(err);
-
+            res.status(404).send({ sucees: false, message: "Users Not Found" })
         } else {
-            res.json({ user });
+           
+            res.status(200).send({ sucess: true, message: "Succesfully fetched user details", user });
+            //res.json({ user });
         }
     })
 });
 
-router.get('/:name', (req, res) => {
-    UserSchema.findOne({ name: req.params.name }, (err, result) => {
+router.get('/:firstname', (req, res) => {
+    userModel.findOne({ firstname: req.params.firstname }, (err, result) => {
         if (err || result === null) {
             res.status(404).send({ sucees: false, message: "User Not Found" })
         } else {
@@ -201,8 +200,8 @@ router.get('/:name', (req, res) => {
     })
 });
 
-router.delete('list/:name', (req, res) => {
-    UserSchema.remove({ name: req.params.name }, (err, doc) => {
+router.delete('list/:firstname', (req, res) => {
+    userModel.remove({ firstname: req.params.firstname }, (err, doc) => {
         if (err) {
             res.status(500).send({ success: false, message: "Unable to delete the user" });
         } else {
