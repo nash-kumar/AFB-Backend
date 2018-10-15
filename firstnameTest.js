@@ -14,13 +14,13 @@ describe('/GET/:firstname', () => {
         const user = {
           
                 firstname: "naveen",
-                // surname: "s",
-                // mobile: 9739301366,
-                // email: "shreenivas.s@accionlabs.com",
-                // dob: "6201996",
-                // password: "naveensss2",
-                // emp_id: 24589,
-                // gender: "male"
+                surname: "s",
+                mobile: 9739301366,
+                email: "shreenivas.s@accionlabs.com",
+                dob: "6201996",
+                password: "naveensss2",
+                emp_id: 24589,
+                gender: "male"
        
 
         }
@@ -36,8 +36,8 @@ describe('/GET/:firstname', () => {
                 // res.body.should.have.property('surname');
                 // res.body.should.have.property('email');
                 // res.body.should.have.property('dob');
-                // res.body.should.have.property('firstname').eql(user.firstname);
-                expect(res.body).to.deep.equal({ firstname});
+                res.body.should.have.property('firstname').eql(user.firstname);
+                // expect(res.body).to.deep.equal({});
             done();
           });
         });
