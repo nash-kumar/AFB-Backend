@@ -4,7 +4,7 @@
   "description": "two crud operations",
   "main": "index.js",
   "scripts": {
-    "test": " ./node_modules/mocha/bin/mocha LoginTest.js "
+    "test": " ./node_modules/mocha/bin/mocha firstnameTest.js "
   },
   "keywords": [],
   "author": "",
