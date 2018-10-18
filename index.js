@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const ejs=require('ejs');
 
 require('dotenv').config();
 app.use(express.json());
@@ -17,9 +18,10 @@ app.use(cors());
 
 const user = require('./routing/route');
 
-app.get('/', (req, res) => {
-  res.send("WELCOME TO NODE");
-});
+app.get('/',(req,res)=> res.render('index'));
+app.set('view engine','ejs');
+
+app.use(express.static('../public'));
 
 app.use('/user', user)
 

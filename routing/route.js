@@ -6,9 +6,64 @@ const userModel = require('../model/model').userModel;
 const async = require('async');
 const nodemailer = require('nodemailer');
 const crypto=require('crypto');
+const multer=require('multer');
+const path=require('path');
+const storage=multer.diskStorage({
 
+    destination:'./public/uploads',
+    filename:function(req,file,cb){
+        cb(null,file.fieldname +'-'+Date.now()+path.extname(file.originalname));
+    }
+});
+const upload=multer({
+    storage:storage,limits:{fileSize:1024*1024*5},
+    fileFilter:function(req,file,cb){
+        checkFileType(file,cb);
+    }
+}).single('myImage');
 
+function checkFileType(file,cb){
+
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname= filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype=filetypes.test(file.mimetype);
+
+    if(extname && mimetype){
+     return cb(null,true);
+    }else {
+        cb('Error :Images Only')
+    }
+}
 module.exports = router;
+
+router.get('/upload/:',(req,res)=>{
+
+});
+
+router.post('/upload',(req,res)=>{
+    upload(req,res,(err)=>{
+        if(err){
+            res.render('index',{
+              msg:err
+            })
+        } else {
+           if(req.file == undefined){
+               res.status(404).json({
+                   msg:`Error: No File Selected!`
+               })
+           } else {
+                res.status(200).json({
+                    msg:`File Uploaded`,
+                    file:`uploads/${req.file.filename}`
+  
+                });
+  
+           }
+    }
+  });
+  });
+  
+
 
 router.post('/register', (req, res) => {
     console.log('POST IS WORKING!');
