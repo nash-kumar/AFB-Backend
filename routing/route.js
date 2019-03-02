@@ -36,14 +36,14 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-       const email= req.body.data.email;
-       var password = req.body.password;
+    const email = req.body.data.email;
+    var password = req.body.password;
 
     userModel.findOne({ email: req.body.data.user.email }, function (err, userInfo) {
-        
+
         if (err) {
             next(err);
-        } if(userInfo) {
+        } if (userInfo) {
             if (bcrypt.compareSync(req.body.data.user.password, userInfo.password)) {
                 const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: '1h' });
                 res.json({ success: true, message: "user found!!!", data: { user: userInfo, token: token } });
@@ -51,7 +51,7 @@ router.post('/login', (req, res) => {
                 res.json({ success: false, message: "Invalid email/password!!!" });
             }
         }
-        if(!userInfo){
+        if (!userInfo) {
             res.json({ success: false, message: "Invalid email/password!!!" });
         }
 
@@ -93,7 +93,7 @@ router.get('/list', function (req, res, next) {
 });
 
 router.get('/:name', (req, res) => {
-    UserSchema.findOne({ name: req.params.name }, (err, result) => {
+    userModel.findOne({ name: req.params.name }, (err, result) => {
         if (err || result === null) {
             res.status(404).send({ sucees: false, message: "User Not Found" })
         } else {
@@ -103,7 +103,7 @@ router.get('/:name', (req, res) => {
 });
 
 router.delete('list/:name', (req, res) => {
-    UserSchema.remove({ name: req.params.name }, (err, doc) => {
+    userModel.remove({ name: req.params.name }, (err, doc) => {
         if (err) {
             res.status(500).send({ success: false, message: "Unable to delete the user" });
         } else {
