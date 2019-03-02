@@ -34,5 +34,5 @@ function validateUser(req, res, next) {
     
   }
 
-PORT = process.env.PORT;
+PORT = process.env.port;
 app.listen(PORT, () => console.log(`At ${PORT} port is running!`));
